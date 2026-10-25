@@ -1,0 +1,970 @@
+openapi: 3.0.3
+info:
+  title: UniEquip API
+  version: "1.0"
+  description: REST API of UniEquip, a university equipment lending system.
+
+servers:
+  - url: http://localhost:8080
+    description: Local environment
+
+tags:
+  - name: Auth
+    description: Registration and login (F1)
+  - name: Categories
+    description: Equipment categories (F2, F8)
+  - name: Equipment
+    description: Equipment catalog and availability (F2, F3, F8)
+  - name: Reservations
+    description: Lending requests, issuing and returning equipment (F4-F7)
+  - name: Users
+    description: User management (F8)
+  - name: Reports
+    description: Reports (F9)
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ---------------------------------------------------------------- Auth
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      operationId: register
+      summary: Register a user (F1)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Account created (role USER)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      summary: Log in and receive a JWT token (F1)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ---------------------------------------------------------- Categories
+  /api/categories:
+    get:
+      tags: [Categories]
+      operationId: listCategories
+      summary: List categories (F2)
+      security: []
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryResponse'
+    post:
+      tags: [Categories]
+      operationId: createCategory
+      summary: Create a category (F8, ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/categories/{id}:
+    put:
+      tags: [Categories]
+      operationId: updateCategory
+      summary: Update a category (F8, ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+      responses:
+        '200':
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    delete:
+      tags: [Categories]
+      operationId: deleteCategory
+      summary: Delete a category (F8, ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: Category deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Category still contains equipment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ----------------------------------------------------------- Equipment
+  /api/equipment:
+    get:
+      tags: [Equipment]
+      operationId: listEquipment
+      summary: List and search equipment (F2)
+      security: []
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: q
+          in: query
+          description: Search phrase matched against name and inventory number
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Page of equipment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentPage'
+    post:
+      tags: [Equipment]
+      operationId: createEquipment
+      summary: Add equipment (F8, ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentRequest'
+      responses:
+        '201':
+          description: Equipment added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Inventory number already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/equipment/{id}:
+    get:
+      tags: [Equipment]
+      operationId: getEquipment
+      summary: Get equipment details (F2)
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Equipment item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Equipment]
+      operationId: updateEquipment
+      summary: Update equipment, including its status (F8, ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentRequest'
+      responses:
+        '200':
+          description: Equipment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Inventory number already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [Equipment]
+      operationId: deleteEquipment
+      summary: Delete equipment (F8, ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: Equipment deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Equipment is referenced by reservations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/equipment/{id}/availability:
+    get:
+      tags: [Equipment]
+      operationId: checkAvailability
+      summary: Check equipment availability in a date range (F3)
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Availability information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailabilityResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # --------------------------------------------------------- Reservations
+  /api/reservations:
+    post:
+      tags: [Reservations]
+      operationId: createReservation
+      summary: Submit a lending request (F4, USER)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReservationRequest'
+      responses:
+        '201':
+          description: Request submitted (status PENDING)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Equipment is booked in the requested period or not available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags: [Reservations]
+      operationId: listReservations
+      summary: List requests, filterable by status (F6, ADMIN)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ReservationStatus'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Page of reservations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/reservations/my:
+    get:
+      tags: [Reservations]
+      operationId: listMyReservations
+      summary: Own lending history (F5, USER)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Page of the current user's reservations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/reservations/{id}/cancel:
+    patch:
+      tags: [Reservations]
+      operationId: cancelReservation
+      summary: Cancel own request, PENDING or APPROVED -> CANCELLED (F5, USER)
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Request cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/InvalidStatus'
+
+  /api/reservations/{id}/approve:
+    patch:
+      tags: [Reservations]
+      operationId: approveReservation
+      summary: Approve a request, PENDING -> APPROVED (F6, ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Request approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/InvalidStatus'
+
+  /api/reservations/{id}/reject:
+    patch:
+      tags: [Reservations]
+      operationId: rejectReservation
+      summary: Reject a request, PENDING -> REJECTED (F6, ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Request rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/InvalidStatus'
+
+  /api/reservations/{id}/issue:
+    patch:
+      tags: [Reservations]
+      operationId: issueEquipment
+      summary: Issue equipment, APPROVED -> ISSUED (F7, ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConditionNoteRequest'
+      responses:
+        '200':
+          description: Equipment issued, issue date recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/InvalidStatus'
+
+  /api/reservations/{id}/return:
+    patch:
+      tags: [Reservations]
+      operationId: returnEquipment
+      summary: Accept a return, ISSUED -> RETURNED (F7, ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConditionNoteRequest'
+      responses:
+        '200':
+          description: Return accepted, return date recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/InvalidStatus'
+
+  # --------------------------------------------------------------- Users
+  /api/users:
+    get:
+      tags: [Users]
+      operationId: listUsers
+      summary: List users (F8, ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Page of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/users/{id}/role:
+    patch:
+      tags: [Users]
+      operationId: changeUserRole
+      summary: Change a user's role (F8, ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeRoleRequest'
+      responses:
+        '200':
+          description: Role changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ------------------------------------------------------------- Reports
+  /api/reports/overdue:
+    get:
+      tags: [Reports]
+      operationId: getOverdueReport
+      summary: Overdue lending report, status ISSUED with end_date in the past (F9, ADMIN)
+      responses:
+        '200':
+          description: List of overdue loans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OverdueEntry'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    Page:
+      name: page
+      in: query
+      description: Page number (zero-based)
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    Size:
+      name: size
+      in: query
+      description: Page size
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  responses:
+    BadRequest:
+      description: Invalid input data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Missing or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Insufficient permissions (wrong role)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: Conflict, e.g. duplicate of a unique value
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InvalidStatus:
+      description: Reservation status change not allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    # ---- enums
+    UserRole:
+      type: string
+      enum: [USER, ADMIN]
+    EquipmentStatus:
+      type: string
+      enum: [AVAILABLE, SERVICE, RETIRED]
+    ReservationStatus:
+      type: string
+      enum: [PENDING, APPROVED, ISSUED, RETURNED, REJECTED, CANCELLED]
+
+    # ---- common
+    ErrorResponse:
+      type: object
+      required: [status, message]
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          example: 409
+        error:
+          type: string
+          example: Conflict
+        message:
+          type: string
+          example: Equipment is booked in the requested period
+        path:
+          type: string
+
+    # ---- auth and users
+    RegisterRequest:
+      type: object
+      required: [firstName, lastName, email, password]
+      properties:
+        firstName:
+          type: string
+          maxLength: 50
+        lastName:
+          type: string
+          maxLength: 50
+        email:
+          type: string
+          format: email
+          maxLength: 100
+        password:
+          type: string
+          format: password
+          minLength: 8
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+          description: JWT token for the Authorization header
+        expiresAt:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/UserResponse'
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/UserRole'
+    ChangeRoleRequest:
+      type: object
+      required: [role]
+      properties:
+        role:
+          $ref: '#/components/schemas/UserRole'
+    UserPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+
+    # ---- categories and equipment
+    CategoryRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 60
+    CategoryResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+    EquipmentRequest:
+      type: object
+      required: [categoryId, name, inventoryNumber]
+      properties:
+        categoryId:
+          type: integer
+          format: int32
+        name:
+          type: string
+          maxLength: 100
+        inventoryNumber:
+          type: string
+          maxLength: 40
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/EquipmentStatus'
+    EquipmentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        categoryId:
+          type: integer
+          format: int32
+        categoryName:
+          type: string
+        name:
+          type: string
+        inventoryNumber:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/EquipmentStatus'
+    EquipmentPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/EquipmentResponse'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    AvailabilityResponse:
+      type: object
+      properties:
+        equipmentId:
+          type: integer
+          format: int32
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        available:
+          type: boolean
+          description: Whether the equipment is free for the whole period
+        reason:
+          type: string
+          nullable: true
+          description: Reason for unavailability, e.g. date overlap or equipment in service
+
+    # ---- reservations
+    CreateReservationRequest:
+      type: object
+      required: [equipmentId, startDate, endDate]
+      properties:
+        equipmentId:
+          type: integer
+          format: int32
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+    ConditionNoteRequest:
+      type: object
+      properties:
+        conditionNote:
+          type: string
+          description: Note about the condition of the equipment when issued or returned
+    ReservationResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        userId:
+          type: integer
+          format: int32
+        userName:
+          type: string
+        equipmentId:
+          type: integer
+          format: int32
+        equipmentName:
+          type: string
+        inventoryNumber:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        status:
+          $ref: '#/components/schemas/ReservationStatus'
+        issuedAt:
+          type: string
+          format: date-time
+          nullable: true
+        returnedAt:
+          type: string
+          format: date-time
+          nullable: true
+        conditionNote:
+          type: string
+          nullable: true
+    ReservationPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReservationResponse'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+
+    # ---- reports
+    OverdueEntry:
+      type: object
+      properties:
+        reservationId:
+          type: integer
+          format: int32
+        userName:
+          type: string
+        userEmail:
+          type: string
+          format: email
+        equipmentName:
+          type: string
+        inventoryNumber:
+          type: string
+        endDate:
+          type: string
+          format: date
+        daysOverdue:
+          type: integer
