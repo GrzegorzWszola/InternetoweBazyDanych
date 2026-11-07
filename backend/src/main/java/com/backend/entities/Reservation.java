@@ -2,7 +2,10 @@ package com.backend.entities;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,6 +56,12 @@ public class Reservation {
     @Column(name = "returned_at")
     private LocalDateTime returnedAt;
 
-    @Column(name = "condition_note")
-    private String conditionNote;
+    @Column(name = "issue_note", columnDefinition = "TEXT")
+    private String issueNote;
+
+    @Column(name = "return_note", columnDefinition = "TEXT")
+    private String returnNote;
+
+    @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReservationHistory> history = new ArrayList<>();
 }

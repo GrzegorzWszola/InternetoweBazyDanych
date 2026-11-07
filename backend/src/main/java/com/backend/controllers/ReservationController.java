@@ -1,16 +1,20 @@
 package com.backend.controllers;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.services.ReservationService;
-
 import com.backend.api.controllers.ReservationsApi;
-import com.backend.api.model.ConditionNoteRequest;
 import com.backend.api.model.CreateReservationRequest;
+import com.backend.api.model.IssueEquipmentRequest;
+import com.backend.api.model.ReservationHistoryResponse;
 import com.backend.api.model.ReservationPage;
 import com.backend.api.model.ReservationResponse;
 import com.backend.api.model.ReservationStatus;
+import com.backend.api.model.ReturnEquipmentRequest;
+import com.backend.services.ReservationService;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -26,55 +30,56 @@ public class ReservationController implements ReservationsApi {
 
     @Override
     public ResponseEntity<ReservationResponse> approveReservation(Integer id) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'approveReservation'");
     }
 
     @Override
     public ResponseEntity<ReservationResponse> cancelReservation(Integer id) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'cancelReservation'");
     }
 
     @Override
     public ResponseEntity<ReservationResponse> createReservation(
             @Valid CreateReservationRequest createReservationRequest) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'createReservation'");
     }
 
     @Override
+    public ResponseEntity<ReservationResponse> getReservation(Integer id) {
+        throw new UnsupportedOperationException("Unimplemented method 'getReservation'");
+    }
+
+    @Override
+    public ResponseEntity<List<ReservationHistoryResponse>> getReservationHistory(Integer id) {
+        throw new UnsupportedOperationException("Unimplemented method 'getReservationHistory'");
+    }
+
+    @Override
     public ResponseEntity<ReservationResponse> issueEquipment(Integer id,
-            @Valid ConditionNoteRequest conditionNoteRequest) {
-        // TODO Auto-generated method stub
+            @Valid IssueEquipmentRequest issueEquipmentRequest) {
         throw new UnsupportedOperationException("Unimplemented method 'issueEquipment'");
     }
 
     @Override
     public ResponseEntity<ReservationPage> listMyReservations(@Min(0) @Valid Integer page,
             @Min(1) @Max(100) @Valid Integer size) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'listMyReservations'");
     }
 
     @Override
     public ResponseEntity<ReservationPage> listReservations(@Valid ReservationStatus status,
             @Min(0) @Valid Integer page, @Min(1) @Max(100) @Valid Integer size) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'listReservations'");
     }
 
     @Override
     public ResponseEntity<ReservationResponse> rejectReservation(Integer id) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'rejectReservation'");
     }
 
     @Override
     public ResponseEntity<ReservationResponse> returnEquipment(Integer id,
-            @Valid ConditionNoteRequest conditionNoteRequest) {
-        // TODO Auto-generated method stub
+            @Valid ReturnEquipmentRequest returnEquipmentRequest) {
         throw new UnsupportedOperationException("Unimplemented method 'returnEquipment'");
     }
-    
 }

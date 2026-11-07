@@ -37,4 +37,8 @@ public class AppUser {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Role role = Role.USER;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clearance_level", nullable = false, length = 20)
+    private ClearanceLevel clearanceLevel = ClearanceLevel.LEVEL_1;
 }
