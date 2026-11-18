@@ -2,12 +2,14 @@ package com.backend.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,15 +22,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity 
-@Table(name = "equipment")
-@Getter @Setter 
+@Entity
+@Table(name = "equipment_model")
+@Getter @Setter
 @NoArgsConstructor
-public class Equipment {
-    
-    @Id 
+public class EquipmentModel {
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id", nullable = false)
@@ -42,19 +44,19 @@ public class Equipment {
     @JoinColumn(name = "hazard_class_id")
     private HazardClass hazardClass;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 150)
     private String name;
-
-    @Column(name = "inventory_number", nullable = false, unique = true, length = 40)
-    private String inventoryNumber;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private EquipmentStatus status = EquipmentStatus.AVAILABLE;
+    @Column(name = "is_consumable", nullable = false)
+    private boolean consumable = false;
 
-    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EquipmentAttribute> attributes = new ArrayList<>();
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "specs", columnDefinition = "jsonb")
+    private Map<String, Object> specs;
+
+    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EquipmentItem> items = new ArrayList<>();
 }

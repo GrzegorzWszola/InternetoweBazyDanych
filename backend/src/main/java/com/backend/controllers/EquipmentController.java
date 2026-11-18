@@ -2,6 +2,7 @@ package com.backend.controllers;
 
 import java.time.LocalDate;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,35 +31,37 @@ public class EquipmentController implements EquipmentApi {
     }
 
     @Override
-    public ResponseEntity<AvailabilityResponse> checkAvailability(Integer id, @NotNull @Valid LocalDate from,
+    public ResponseEntity<AvailabilityResponse> checkAvailability(Long id, @NotNull @Valid LocalDate from,
             @NotNull @Valid LocalDate to) {
-        throw new UnsupportedOperationException("Unimplemented method 'checkAvailability'");
+        return ResponseEntity.ok(availabilityService.checkAvailability(id, from, to));
     }
 
     @Override
     public ResponseEntity<EquipmentResponse> createEquipment(@Valid EquipmentRequest equipmentRequest) {
-        throw new UnsupportedOperationException("Unimplemented method 'createEquipment'");
+        EquipmentResponse response = equipmentService.createEquipment(equipmentRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Override
-    public ResponseEntity<Void> deleteEquipment(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'deleteEquipment'");
+    public ResponseEntity<Void> deleteEquipment(Long id) {
+        equipmentService.deleteEquipment(id);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<EquipmentResponse> getEquipment(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'getEquipment'");
+    public ResponseEntity<EquipmentResponse> getEquipment(Long id) {
+        return ResponseEntity.ok(equipmentService.getEquipment(id));
     }
 
     @Override
-    public ResponseEntity<EquipmentPage> listEquipment(@Valid Integer categoryId, @Valid Integer departmentId,
-            @Valid Integer hazardClassId, @Valid String q, @Min(0) @Valid Integer page,
+    public ResponseEntity<EquipmentPage> listEquipment(@Valid Long categoryId, @Valid Long departmentId,
+            @Valid Long hazardClassId, @Valid String q, @Min(0) @Valid Integer page,
             @Min(1) @Max(100) @Valid Integer size) {
-        throw new UnsupportedOperationException("Unimplemented method 'listEquipment'");
+        return ResponseEntity.ok(equipmentService.listEquipment(categoryId, departmentId, hazardClassId, q, page, size));
     }
 
     @Override
-    public ResponseEntity<EquipmentResponse> updateEquipment(Integer id, @Valid EquipmentRequest equipmentRequest) {
-        throw new UnsupportedOperationException("Unimplemented method 'updateEquipment'");
+    public ResponseEntity<EquipmentResponse> updateEquipment(Long id, @Valid EquipmentRequest equipmentRequest) {
+        return ResponseEntity.ok(equipmentService.updateEquipment(id, equipmentRequest));
     }
 }

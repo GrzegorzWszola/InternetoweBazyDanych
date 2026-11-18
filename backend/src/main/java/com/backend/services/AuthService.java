@@ -14,7 +14,6 @@ import com.backend.api.model.RegisterRequest;
 import com.backend.api.model.UserResponse;
 import com.backend.api.model.UserRole;
 import com.backend.entities.AppUser;
-import com.backend.entities.ClearanceLevel;
 import com.backend.entities.Role;
 import com.backend.repositories.AppUserRepository;
 
@@ -45,21 +44,7 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
-
-        if (request.getClearanceLevel() != null) {
-            switch (request.getClearanceLevel()) {
-                case _1:
-                    user.setClearanceLevel(com.backend.entities.ClearanceLevel.LEVEL_1);
-                    break;
-                case _2:
-                    user.setClearanceLevel(com.backend.entities.ClearanceLevel.LEVEL_2);
-                    break;
-                default:
-                    user.setClearanceLevel(com.backend.entities.ClearanceLevel.LEVEL_1);
-            }
-        } else {
-            user.setClearanceLevel(com.backend.entities.ClearanceLevel.LEVEL_1);
-        }
+        user.setClearanceLevel(com.backend.entities.ClearanceLevel.BASIC);
 
         AppUser savedUser = userRepository.save(user);
         return toUserResponse(savedUser);

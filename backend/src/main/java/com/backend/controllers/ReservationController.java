@@ -2,13 +2,14 @@ package com.backend.controllers;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.api.controllers.ReservationsApi;
 import com.backend.api.model.CreateReservationRequest;
 import com.backend.api.model.IssueEquipmentRequest;
-import com.backend.api.model.ReservationHistoryResponse;
+import com.backend.api.model.ReservationArchiveResponse;
 import com.backend.api.model.ReservationPage;
 import com.backend.api.model.ReservationResponse;
 import com.backend.api.model.ReservationStatus;
@@ -29,57 +30,61 @@ public class ReservationController implements ReservationsApi {
     }
 
     @Override
-    public ResponseEntity<ReservationResponse> approveReservation(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'approveReservation'");
-    }
-
-    @Override
-    public ResponseEntity<ReservationResponse> cancelReservation(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'cancelReservation'");
-    }
-
-    @Override
     public ResponseEntity<ReservationResponse> createReservation(
             @Valid CreateReservationRequest createReservationRequest) {
-        throw new UnsupportedOperationException("Unimplemented method 'createReservation'");
+        ReservationResponse response = reservationService.createReservation(createReservationRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Override
-    public ResponseEntity<ReservationResponse> getReservation(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'getReservation'");
+    public ResponseEntity<ReservationResponse> approveReservation(Long id) {
+        return ResponseEntity.ok(reservationService.approveReservation(id));
     }
 
     @Override
-    public ResponseEntity<List<ReservationHistoryResponse>> getReservationHistory(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'getReservationHistory'");
+    public ResponseEntity<ReservationResponse> cancelReservation(Long id) {
+        return ResponseEntity.ok(reservationService.cancelReservation(id));
     }
 
     @Override
-    public ResponseEntity<ReservationResponse> issueEquipment(Integer id,
+    public ResponseEntity<ReservationResponse> rejectReservation(Long id) {
+        return ResponseEntity.ok(reservationService.rejectReservation(id));
+    }
+
+    @Override
+    public ResponseEntity<ReservationResponse> issueEquipment(Long id,
             @Valid IssueEquipmentRequest issueEquipmentRequest) {
-        throw new UnsupportedOperationException("Unimplemented method 'issueEquipment'");
+        return ResponseEntity.ok(reservationService.issueEquipment(id, issueEquipmentRequest));
     }
 
     @Override
-    public ResponseEntity<ReservationPage> listMyReservations(@Min(0) @Valid Integer page,
-            @Min(1) @Max(100) @Valid Integer size) {
-        throw new UnsupportedOperationException("Unimplemented method 'listMyReservations'");
-    }
-
-    @Override
-    public ResponseEntity<ReservationPage> listReservations(@Valid ReservationStatus status,
-            @Min(0) @Valid Integer page, @Min(1) @Max(100) @Valid Integer size) {
-        throw new UnsupportedOperationException("Unimplemented method 'listReservations'");
-    }
-
-    @Override
-    public ResponseEntity<ReservationResponse> rejectReservation(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'rejectReservation'");
-    }
-
-    @Override
-    public ResponseEntity<ReservationResponse> returnEquipment(Integer id,
+    public ResponseEntity<ReservationResponse> returnEquipment(Long id,
             @Valid ReturnEquipmentRequest returnEquipmentRequest) {
-        throw new UnsupportedOperationException("Unimplemented method 'returnEquipment'");
+        return ResponseEntity.ok(reservationService.returnEquipment(id, returnEquipmentRequest));
+    }
+
+    @Override
+    public ResponseEntity<ReservationResponse> getReservation(Long id) {
+        return ResponseEntity.ok(reservationService.getReservation(id));
+    }
+
+    @Override
+    public ResponseEntity<List<ReservationArchiveResponse>> getReservationHistory(Long id) {
+        return ResponseEntity.ok(reservationService.getReservationArchive(id));
+    }
+
+    @Override
+    public ResponseEntity<ReservationPage> listMyReservations(
+            @Min(0) @Valid Integer page,
+            @Min(1) @Max(100) @Valid Integer size) {
+        return ResponseEntity.ok(reservationService.listMyReservations(page, size));
+    }
+
+    @Override
+    public ResponseEntity<ReservationPage> listReservations(
+            @Valid ReservationStatus status,
+            @Min(0) @Valid Integer page,
+            @Min(1) @Max(100) @Valid Integer size) {
+        return ResponseEntity.ok(reservationService.listReservations(status, page, size));
     }
 }

@@ -5,10 +5,14 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
+ARG VITE_API_URL=http://localhost:8080/api
+ENV VITE_API_URL=$VITE_API_URL
+
 COPY . .
 RUN npm run build
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Krok 2: Serwowanie plików z folderu /dist przez Nginx
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html

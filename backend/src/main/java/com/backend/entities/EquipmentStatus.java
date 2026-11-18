@@ -2,6 +2,6 @@ package com.backend.entities;
 
 public enum EquipmentStatus {
     AVAILABLE,
-    SERVICE,
+    IN_SERVICE,
     RETIRED
 }

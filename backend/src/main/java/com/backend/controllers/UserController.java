@@ -24,23 +24,23 @@ public class UserController implements UsersApi {
     }
 
     @Override
-    public ResponseEntity<UserResponse> changeUserClearance(Integer id,
+    public ResponseEntity<UserResponse> changeUserClearance(Long id,
             @Valid ChangeClearanceRequest changeClearanceRequest) {
-        throw new UnsupportedOperationException("Unimplemented method 'changeUserClearance'");
+        return ResponseEntity.ok(userService.changeUserClearance(id, changeClearanceRequest));
     }
 
     @Override
-    public ResponseEntity<UserResponse> changeUserRole(Integer id, @Valid ChangeRoleRequest changeRoleRequest) {
-        throw new UnsupportedOperationException("Unimplemented method 'changeUserRole'");
+    public ResponseEntity<UserResponse> changeUserRole(Long id, @Valid ChangeRoleRequest changeRoleRequest) {
+        return ResponseEntity.ok(userService.changeUserRole(id, changeRoleRequest));
     }
 
     @Override
-    public ResponseEntity<UserResponse> getUser(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'getUser'");
+    public ResponseEntity<UserResponse> getUser(Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @Override
     public ResponseEntity<UserPage> listUsers(@Min(0) @Valid Integer page, @Min(1) @Max(100) @Valid Integer size) {
-        throw new UnsupportedOperationException("Unimplemented method 'listUsers'");
+        return ResponseEntity.ok(userService.listUsers(page, size));
     }
 }

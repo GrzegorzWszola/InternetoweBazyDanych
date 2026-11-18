@@ -2,6 +2,7 @@ package com.backend.controllers;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,26 +24,28 @@ public class CategoryController implements CategoriesApi {
 
     @Override
     public ResponseEntity<CategoryResponse> createCategory(@Valid CategoryRequest categoryRequest) {
-        throw new UnsupportedOperationException("Unimplemented method 'createCategory'");
+        CategoryResponse created = categoryService.createCategory(categoryRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @Override
-    public ResponseEntity<Void> deleteCategory(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'deleteCategory'");
+    public ResponseEntity<Void> deleteCategory(Long id) {
+        categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<CategoryResponse> getCategory(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'getCategory'");
+    public ResponseEntity<CategoryResponse> getCategory(Long id) {
+        return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
     @Override
     public ResponseEntity<List<CategoryResponse>> listCategories() {
-        throw new UnsupportedOperationException("Unimplemented method 'listCategories'");
+        return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
     @Override
-    public ResponseEntity<CategoryResponse> updateCategory(Integer id, @Valid CategoryRequest categoryRequest) {
-        throw new UnsupportedOperationException("Unimplemented method 'updateCategory'");
+    public ResponseEntity<CategoryResponse> updateCategory(Long id, @Valid CategoryRequest categoryRequest) {
+        return ResponseEntity.ok(categoryService.updateCategory(id, categoryRequest));
     }
 }

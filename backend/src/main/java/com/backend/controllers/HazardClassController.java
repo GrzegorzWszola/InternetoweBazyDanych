@@ -2,6 +2,7 @@ package com.backend.controllers;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,26 +24,28 @@ public class HazardClassController implements HazardClassesApi {
 
     @Override
     public ResponseEntity<HazardClassResponse> createHazardClass(@Valid HazardClassRequest hazardClassRequest) {
-        throw new UnsupportedOperationException("Unimplemented method 'createHazardClass'");
+        HazardClassResponse response = hazardClassService.createHazardClass(hazardClassRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Override
-    public ResponseEntity<Void> deleteHazardClass(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'deleteHazardClass'");
+    public ResponseEntity<Void> deleteHazardClass(Long id) {
+        hazardClassService.deleteHazardClass(id);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<HazardClassResponse> getHazardClass(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'getHazardClass'");
+    public ResponseEntity<HazardClassResponse> getHazardClass(Long id) {
+        return ResponseEntity.ok(hazardClassService.getHazardClass(id));
     }
 
     @Override
     public ResponseEntity<List<HazardClassResponse>> listHazardClasses() {
-        throw new UnsupportedOperationException("Unimplemented method 'listHazardClasses'");
+        return ResponseEntity.ok(hazardClassService.listHazardClasses());
     }
 
     @Override
-    public ResponseEntity<HazardClassResponse> updateHazardClass(Integer id, @Valid HazardClassRequest hazardClassRequest) {
-        throw new UnsupportedOperationException("Unimplemented method 'updateHazardClass'");
+    public ResponseEntity<HazardClassResponse> updateHazardClass(Long id, @Valid HazardClassRequest hazardClassRequest) {
+        return ResponseEntity.ok(hazardClassService.updateHazardClass(id, hazardClassRequest));
     }
 }

@@ -2,6 +2,7 @@ package com.backend.controllers;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,26 +24,28 @@ public class DepartmentController implements DepartmentsApi {
 
     @Override
     public ResponseEntity<DepartmentResponse> createDepartment(@Valid DepartmentRequest departmentRequest) {
-        throw new UnsupportedOperationException("Unimplemented method 'createDepartment'");
+        DepartmentResponse response = departmentService.createDepartment(departmentRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Override
-    public ResponseEntity<Void> deleteDepartment(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'deleteDepartment'");
+    public ResponseEntity<Void> deleteDepartment(Long id) {
+        departmentService.deleteDepartment(id);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<DepartmentResponse> getDepartment(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'getDepartment'");
+    public ResponseEntity<DepartmentResponse> getDepartment(Long id) {
+        return ResponseEntity.ok(departmentService.getDepartment(id));
     }
 
     @Override
     public ResponseEntity<List<DepartmentResponse>> listDepartments() {
-        throw new UnsupportedOperationException("Unimplemented method 'listDepartments'");
+        return ResponseEntity.ok(departmentService.listDepartments());
     }
 
     @Override
-    public ResponseEntity<DepartmentResponse> updateDepartment(Integer id, @Valid DepartmentRequest departmentRequest) {
-        throw new UnsupportedOperationException("Unimplemented method 'updateDepartment'");
+    public ResponseEntity<DepartmentResponse> updateDepartment(Long id, @Valid DepartmentRequest departmentRequest) {
+        return ResponseEntity.ok(departmentService.updateDepartment(id, departmentRequest));
     }
 }

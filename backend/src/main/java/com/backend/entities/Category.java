@@ -7,17 +7,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity 
+@Entity
 @Table(name = "category")
-@Getter @Setter 
+@Getter @Setter
+@NoArgsConstructor
 public class Category {
-    
-    @Id 
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    
-    @Column(name = "name", nullable = false, length = 50)
+    private Long id;
+
+    @Column(name = "name", nullable = false, unique = true, length = 100)
     private String name;
 }

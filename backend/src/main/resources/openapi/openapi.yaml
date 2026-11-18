@@ -421,17 +421,17 @@ paths:
           in: query
           schema:
             type: integer
-            format: int32
+            format: int64
         - name: departmentId
           in: query
           schema:
             type: integer
-            format: int32
+            format: int64
         - name: hazardClassId
           in: query
           schema:
             type: integer
-            format: int32
+            format: int64
         - name: q
           in: query
           description: Search phrase matched against name and inventory number
@@ -690,7 +690,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ReservationHistoryResponse'
+                  $ref: '#/components/schemas/ReservationArchiveResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -961,7 +961,7 @@ components:
       required: true
       schema:
         type: integer
-        format: int32
+        format: int64
     Page:
       name: page
       in: query
@@ -1025,13 +1025,16 @@ components:
       enum: [USER, ADMIN]
     ClearanceLevel:
       type: string
-      enum: [LEVEL_1, LEVEL_2, LEVEL_3]
+      enum: [BASIC, ADVANCED, SPECIALIST]
     EquipmentStatus:
       type: string
-      enum: [AVAILABLE, SERVICE, RETIRED]
+      enum: [AVAILABLE, IN_SERVICE, RETIRED]
+    ArchiveReason:
+      type: string
+      enum: [CANCELLED, REJECTED]
     ReservationStatus:
       type: string
-      enum: [PENDING, APPROVED, ISSUED, RETURNED, REJECTED, CANCELLED]
+      enum: [PENDING, APPROVED, ISSUED, RETURNED]
 
     # ---- common
     ErrorResponse:
@@ -1060,14 +1063,14 @@ components:
       properties:
         firstName:
           type: string
-          maxLength: 50
+          maxLength: 80
         lastName:
           type: string
-          maxLength: 50
+          maxLength: 80
         email:
           type: string
           format: email
-          maxLength: 100
+          maxLength: 150
         password:
           type: string
           format: password
@@ -1101,7 +1104,7 @@ components:
       properties:
         id:
           type: integer
-          format: int32
+          format: int64
         firstName:
           type: string
         lastName:
@@ -1152,13 +1155,13 @@ components:
           maxLength: 100
         location:
           type: string
-          maxLength: 255
+          maxLength: 150
     DepartmentResponse:
       type: object
       properties:
         id:
           type: integer
-          format: int32
+          format: int64
         name:
           type: string
         location:
@@ -1171,13 +1174,13 @@ components:
       properties:
         name:
           type: string
-          maxLength: 60
+          maxLength: 100
     CategoryResponse:
       type: object
       properties:
         id:
           type: integer
-          format: int32
+          format: int64
         name:
           type: string
 
@@ -1198,7 +1201,7 @@ components:
       properties:
         id:
           type: integer
-          format: int32
+          format: int64
         name:
           type: string
         requiredLevel:
@@ -1206,73 +1209,141 @@ components:
         safetyInstructions:
           type: string
 
-    # ---- equipment and attributes
-    EquipmentAttributeRequest:
+    # ---- equipment model and items
+    EquipmentModelRequest:
       type: object
-      required: [name, value]
+      required: [categoryId, departmentId, name]
       properties:
+        categoryId:
+          type: integer
+          format: int64
+        departmentId:
+          type: integer
+          format: int64
+        hazardClassId:
+          type: integer
+          format: int64
         name:
           type: string
-          maxLength: 100
-        value:
+          maxLength: 150
+        description:
           type: string
-          maxLength: 255
-    EquipmentAttributeResponse:
+        isConsumable:
+          type: boolean
+          default: false
+        specs:
+          type: object
+          additionalProperties: true
+          description: Flexible technical parameters (JSON)
+    EquipmentModelResponse:
       type: object
       properties:
         id:
           type: integer
-          format: int32
+          format: int64
+        categoryId:
+          type: integer
+          format: int64
+        categoryName:
+          type: string
+        departmentId:
+          type: integer
+          format: int64
+        departmentName:
+          type: string
+        hazardClassId:
+          type: integer
+          format: int64
+        hazardClassName:
+          type: string
         name:
           type: string
-        value:
+        description:
           type: string
+        isConsumable:
+          type: boolean
+        specs:
+          type: object
+          additionalProperties: true
+          description: Flexible technical parameters (JSON)
+    EquipmentItemRequest:
+      type: object
+      required: [modelId, serialNumber, inventoryNumber]
+      properties:
+        modelId:
+          type: integer
+          format: int64
+        serialNumber:
+          type: string
+          maxLength: 100
+        inventoryNumber:
+          type: string
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/EquipmentStatus'
+    EquipmentItemResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        modelId:
+          type: integer
+          format: int64
+        modelName:
+          type: string
+        serialNumber:
+          type: string
+        inventoryNumber:
+          type: string
+        status:
+          $ref: '#/components/schemas/EquipmentStatus'
     EquipmentRequest:
       type: object
       required: [categoryId, departmentId, name, inventoryNumber]
       properties:
         categoryId:
           type: integer
-          format: int32
+          format: int64
         departmentId:
           type: integer
-          format: int32
+          format: int64
         hazardClassId:
           type: integer
-          format: int32
+          format: int64
         name:
           type: string
-          maxLength: 100
+          maxLength: 150
         inventoryNumber:
           type: string
-          maxLength: 40
+          maxLength: 100
         description:
           type: string
         status:
           $ref: '#/components/schemas/EquipmentStatus'
-        attributes:
-          type: array
-          items:
-            $ref: '#/components/schemas/EquipmentAttributeRequest'
+        specs:
+          type: object
+          additionalProperties: true
+          description: Flexible technical parameters (JSON)
     EquipmentResponse:
       type: object
       properties:
         id:
           type: integer
-          format: int32
+          format: int64
         categoryId:
           type: integer
-          format: int32
+          format: int64
         categoryName:
           type: string
         departmentId:
           type: integer
-          format: int32
+          format: int64
         departmentName:
           type: string
         hazardClassId:
           type: integer
-          format: int32
+          format: int64
         hazardClassName:
           type: string
         name:
@@ -1283,10 +1354,10 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/EquipmentStatus'
-        attributes:
-          type: array
-          items:
-            $ref: '#/components/schemas/EquipmentAttributeResponse'
+        specs:
+          type: object
+          additionalProperties: true
+          description: Flexible technical parameters (JSON)
     EquipmentPage:
       type: object
       properties:
@@ -1306,9 +1377,9 @@ components:
     AvailabilityResponse:
       type: object
       properties:
-        equipmentId:
+        itemId:
           type: integer
-          format: int32
+          format: int64
         from:
           type: string
           format: date
@@ -1317,7 +1388,7 @@ components:
           format: date
         available:
           type: boolean
-          description: Whether the equipment is free for the whole period
+          description: Whether the equipment item is free for the whole period
         reason:
           type: string
           nullable: true
@@ -1326,11 +1397,11 @@ components:
     # ---- reservations
     CreateReservationRequest:
       type: object
-      required: [equipmentId, startDate, endDate]
+      required: [itemId, startDate, endDate]
       properties:
-        equipmentId:
+        itemId:
           type: integer
-          format: int32
+          format: int64
         startDate:
           type: string
           format: date
@@ -1354,18 +1425,20 @@ components:
       properties:
         id:
           type: integer
-          format: int32
+          format: int64
         userId:
           type: integer
-          format: int32
+          format: int64
         userName:
           type: string
-        equipmentId:
+        itemId:
           type: integer
-          format: int32
-        equipmentName:
+          format: int64
+        modelName:
           type: string
         inventoryNumber:
+          type: string
+        serialNumber:
           type: string
         startDate:
           type: string
@@ -1375,6 +1448,9 @@ components:
           format: date
         status:
           $ref: '#/components/schemas/ReservationStatus'
+        createdAt:
+          type: string
+          format: date-time
         issuedAt:
           type: string
           format: date-time
@@ -1389,27 +1465,44 @@ components:
         returnNote:
           type: string
           nullable: true
-    ReservationHistoryResponse:
+    ReservationArchiveResponse:
       type: object
       properties:
         id:
           type: integer
-          format: int32
-        reservationId:
+          format: int64
+        originalId:
           type: integer
-          format: int32
-        changedById:
+          format: int64
+        userId:
           type: integer
-          format: int32
-        changedByName:
+          format: int64
+        userName:
           type: string
-        oldStatus:
-          $ref: '#/components/schemas/ReservationStatus'
-        newStatus:
-          $ref: '#/components/schemas/ReservationStatus'
-        changedAt:
+        itemId:
+          type: integer
+          format: int64
+        modelName:
+          type: string
+        inventoryNumber:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        finalStatus:
+          $ref: '#/components/schemas/ArchiveReason'
+        createdAt:
           type: string
           format: date-time
+        archivedAt:
+          type: string
+          format: date-time
+        reason:
+          type: string
+          nullable: true
 
     ReservationPage:
       type: object
@@ -1434,7 +1527,7 @@ components:
       properties:
         reservationId:
           type: integer
-          format: int32
+          format: int64
         userName:
           type: string
         userEmail:

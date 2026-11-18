@@ -14,21 +14,21 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "app_user")
-@Getter @Setter 
+@Getter @Setter
 @NoArgsConstructor
 public class AppUser {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    @Column(name = "first_name", nullable = false, length = 50)
+    @Column(name = "first_name", nullable = false, length = 80)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false, length = 50)
+    @Column(name = "last_name", nullable = false, length = 80)
     private String lastName;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, unique = true, length = 150)
     private String email;
 
     @Column(name = "password_hash", nullable = false, length = 255)
@@ -40,5 +40,5 @@ public class AppUser {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "clearance_level", nullable = false, length = 20)
-    private ClearanceLevel clearanceLevel = ClearanceLevel.LEVEL_1;
+    private ClearanceLevel clearanceLevel = ClearanceLevel.BASIC;
 }

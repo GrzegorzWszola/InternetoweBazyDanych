@@ -18,11 +18,11 @@ public class Department {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, unique = true, length = 100)
     private String name;
 
-    @Column(length = 255)
+    @Column(length = 150)
     private String location;
 }

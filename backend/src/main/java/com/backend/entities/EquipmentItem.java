@@ -1,7 +1,5 @@
 package com.backend.entities;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,31 +16,26 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "reservation_history")
+@Table(name = "equipment_item")
 @Getter @Setter
 @NoArgsConstructor
-public class ReservationHistory {
+public class EquipmentItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "reservation_id", nullable = false)
-    private Reservation reservation;
+    @JoinColumn(name = "model_id", nullable = false)
+    private EquipmentModel model;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "changed_by", nullable = false)
-    private AppUser changedBy;
+    @Column(name = "serial_number", nullable = false, unique = true, length = 100)
+    private String serialNumber;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "old_status", length = 20)
-    private ReservationStatus oldStatus;
+    @Column(name = "inventory_number", nullable = false, unique = true, length = 100)
+    private String inventoryNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "new_status", nullable = false, length = 20)
-    private ReservationStatus newStatus;
-
-    @Column(name = "changed_at", nullable = false)
-    private LocalDateTime changedAt = LocalDateTime.now();
+    @Column(nullable = false, length = 20)
+    private EquipmentStatus status = EquipmentStatus.AVAILABLE;
 }
